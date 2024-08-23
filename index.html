@@ -11,7 +11,7 @@
    
    
 #map {
-  width: 100%;
+  max-width: 90%;
   height: 700px;
   margin-top: 0px; /* Adjust the value as needed */
   border-radius: 7px; /* Adjust the value to control the roundness of corners */
@@ -128,35 +128,6 @@ background-color: #f3eac6;
   }
 </style>
 
-<div class="card-container">
-  <div class="card">
-    <div class="population-info">
-      <label for="printing-cost-amount">Printing Cost per Flyer:</label><br>
-      <input type="number" id="printing-cost-amount" min="0" step="0.01" value="0.03" onchange="calculatePrintingCost()">
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="population-info">
-      <label for="vat-amount">VAT (%):</label><br>
-      <input type="number" id="vat-amount" min="0" max="100" step="0.01" value="21" onchange="calculateRevenue()">
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="population-info">
-      <label for="flyers-customer">Flyers required to gain 1 Customer:</label><br>
-      <input type="number" id="flyers-customer" min="0" step="1" value="150" onchange="calculateRevenue()">
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="population-info">
-      <label for="revenue-amount">🎯 Target Revenue per Customer (€):</label>
-      <input type="number" id="revenue-amount" min="0" step="0.01" onchange="calculateRevenue()">
-    </div>
-  </div>
-</div>
 
 
 
@@ -207,47 +178,6 @@ margin-bottom: 50px;
 </style>
 
 
-<div class="table">
-  <div class="table-column">
-    <div class="table-row">
-<div class="table-cell bold" style="font-size: 8px;">Campaign Area Code</div>
-      <div class="table-cell" id="area-nft-code"></div>
-    </div>
-    <div class="table-row">
-      <div class="table-cell bold">Total Count of Ways:</div>
-      <div class="table-cell" id="ways-count"></div>
-    </div>
-    <div class="table-row">
-      <div class="table-cell bold">Area:</div>
-      <div class="table-cell" id="area-info"></div>
-    </div>
-    <div class="table-row">
-      <div class="table-cell bold">Distribution Cost:</div>
-      <div class="table-cell" id="distribution-cost"></div>
-    </div>
-    <div class="table-row">
-      <div class="table-cell bold">Printing Cost:</div>
-      <div class="table-cell" id="printing-cost"></div>
-    </div>
-    <div class="table-row">
-      <div class="table-cell bold red">Total Cost:</div>
-      <div class="table-cell" id="total-cost"></div>
-    </div>
-    <div class="table-row">
-      <div class="table-cell bold green">Potential Customers Gain:</div>
-      <div class="table-cell" id="potential-customer-gain"></div>
-    </div>
-    <div class="table-row">
-      <div class="table-cell bold">Total Revenue:</div>
-      <div class="table-cell" id="total-revenue"></div>
-    </div>
-    <div class="table-row">
-      <div class="table-cell bold blue">Possible Profit from Selected Area:</div>
-      <div class="table-cell" id="possible-profit"></div>
-    </div>
-  </div>
-</div>
-
 
 
 
@@ -277,11 +207,7 @@ margin-bottom: 50px;
   }
 </style>
 
-<div id="show-streets-button" class="population-info">
-  <button onclick="toggleStreetList()">Show Streets</button>
-</div>
 
-<div id="street-list" class="population-info"></div>
 
 
 
@@ -313,22 +239,7 @@ margin-bottom: 50px;
       featureGroup: drawnItems
     }
   });
-  map.addControl(drawControl);
-
-  map.on('draw:drawstart', function (e) {
-    drawnItems.clearLayers();
-    document.getElementById('ways-count').innerHTML = '<strong>Total Count of Ways:</strong>';
-    document.getElementById('area-info').innerHTML = '<strong>Area:</strong>';
-    document.getElementById('flyers-info').innerHTML = '<strong>Flyers Required to Cover Area:</strong>';
-    document.getElementById('potential-customer-gain').innerHTML = '<strong>Potential Customers Gain:</strong>';
-    document.getElementById('total-revenue').innerHTML = '<strong>Total Revenue:</strong>';
-    document.getElementById('street-list').innerHTML = '';
-    document.getElementById('show-streets-button').innerHTML = '<button onclick="toggleStreetList()">Show Streets</button>';
-    document.getElementById('distribution-cost').innerHTML = '<strong>Distribution Cost:</strong>';
-    document.getElementById('printing-cost').innerHTML = '<strong>Printing Cost:</strong>';
-    document.getElementById('total-cost').innerHTML = '<strong>Total Cost:</strong>';
-    document.getElementById('possible-profit').innerHTML = '<strong>Possible Profit from Selected Area:</strong>';
-  });
+  
 
   map.on('draw:created', function (e) {
     var layer = e.layer;
@@ -358,137 +269,7 @@ margin-bottom: 50px;
     .catch(error => console.error('Error:', error));
   }
 
-  function calculateArea(layer) {
-    var areaSquareMeters = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);
-    var areaSquareKm = areaSquareMeters / 1000000;
-    document.getElementById('area-info').innerHTML = "<strong>Area:</strong> " + areaSquareMeters.toFixed(2) + " m² (" + areaSquareKm.toFixed(2) + " km²)";
-  }
-
-  function calculateFlyersRequired() {
-    var waysCount = parseFloat(document.getElementById('ways-count').textContent.split(':')[1].trim()) || 0;
-    var flyersCustomer = parseFloat(document.getElementById('flyers-customer').value) || 0;
-       var flyersRequired = waysCount * flyersCustomer;
-    document.getElementById('flyers-info').innerHTML = "<strong>Flyers Required to Cover Area:</strong> " + flyersRequired;
-    calculateRevenue(); // Recalculate revenue after updating flyers required
-  }
-
-  function calculateRevenue() {
-    var revenueAmount = parseFloat(document.getElementById('revenue-amount').value) || 0;
-    var flyersRequired = parseFloat(document.getElementById('ways-count').textContent.split(':')[1].trim()) || 0;
-    var potentialCustomers = Math.floor(flyersRequired / parseFloat(document.getElementById('flyers-customer').value)) || 0;
-    document.getElementById('potential-customer-gain').innerHTML = "<strong>Potential Customers Gain:</strong> " + potentialCustomers;
-
-    var totalRevenue = revenueAmount * potentialCustomers;
-    var vatPercentage = parseFloat(document.getElementById('vat-amount').value) / 100;
-    var costWithVAT = totalRevenue * (1 + vatPercentage);
-    document.getElementById('total-revenue').innerHTML = "<strong>Total Revenue:</strong> " + costWithVAT.toFixed(2) + " €";
-
-    var distributionCost = flyersRequired * 0.05; // Distribution cost per flyer (0.05 €)
-    document.getElementById('distribution-cost').innerHTML = "<strong>Distribution Cost:</strong> " + distributionCost.toFixed(2) + " €";
-
-    var printingCost = parseFloat(document.getElementById('printing-cost').textContent.split(':')[1].trim()) || 0; // Retrieve printing cost from input
-    document.getElementById('printing-cost').innerHTML = "<strong>Printing Cost:</strong> " + printingCost.toFixed(2) + " €";
-
-    var totalCost = distributionCost + printingCost;
-    if (vatPercentage > 0) {
-      totalCost *= (1 + vatPercentage); // Apply VAT if specified
-    }
-    document.getElementById('total-cost').innerHTML = "<strong>Total Cost:</strong> " + totalCost.toFixed(2) + " €";
-
-    var possibleProfit = totalRevenue - totalCost;
-    document.getElementById('possible-profit').innerHTML = "<strong>Possible Profit from Selected Area:</strong> " + possibleProfit.toFixed(2) + " €";
-  }
-
-  function calculatePrintingCost() {
-    var flyersRequired = parseFloat(document.getElementById('ways-count').textContent.split(':')[1].trim()) || 0;
-    var printingCostPerFlyer = parseFloat(document.getElementById('printing-cost-amount').value) || 0;
-    var printingCost = flyersRequired * printingCostPerFlyer;
-    document.getElementById('printing-cost').innerHTML = "<strong>Printing Cost:</strong> " + printingCost.toFixed(2) + " €";
-    calculateRevenue(); // Recalculate revenue after updating printing cost
-  }
-
-  function toggleStreetList() {
-    var streetList = document.getElementById('street-list');
-    if (streetList.style.display === 'none') {
-      streetList.style.display = 'block';
-      document.getElementById('show-streets-button').innerHTML = '<button onclick="toggleStreetList()">Hide Streets</button>';
-      updateStreetList();
-    } else {
-      streetList.style.display = 'none';
-      document.getElementById('show-streets-button').innerHTML = '<button onclick="toggleStreetList()">Show Streets</button>';
-    }
-  }
-
-  function updateStreetList() {
-    var drawnLayer = drawnItems.getLayers()[0];
-    var polygonPoints = drawnLayer.getLatLngs()[0].map(point => `${point.lat} ${point.lng}`).join(' ');
-    var query = `[out:json];
-      way["highway"](poly:"${polygonPoints}");
-      out;
-    `;
-
-    fetch('https://overpass-api.de/api/interpreter', {
-      method: 'POST',
-      body: query
-    })
-    .then(response => response.json())
-    .then(data => {
-      var streets = new Set();
-      data.elements.forEach(function(element) {
-        if (element.tags && element.tags.highway && element.tags.name) {
-          streets.add(element.tags.name);
-        }
-      });
-      var sortedStreets = Array.from(streets).sort();
-      document.getElementById('street-list').innerHTML = "<strong>List of Streets:</strong><br/>" + sortedStreets.join("<br/>");
-      highlightStreets(drawnLayer); // Highlight streets after updating street list
-    })
-    .catch(error => console.error('Error:', error));
-  }
-
-  function highlightStreets(polygonLayer) {
-    var polygonGeoJSON = polygonLayer.toGeoJSON();
-    var polygonCoords = polygonGeoJSON.geometry.coordinates[0].map(coord => `${coord[1]} ${coord[0]}`).join(' ');
-
-    var query = `[out:json];
-      way["highway"](poly:"${polygonCoords}");
-      out geom;
-    `;
-
-    fetch('https://overpass-api.de/api/interpreter', {
-      method: 'POST',
-      body: query
-    })
-    .then(response => response.json())
-    .then(data => {
-      data.elements.forEach(function(element) {
-        if (element.type === "way" && element.geometry) {
-          var streetCoordinates = element.geometry.map(node => [node.lat, node.lon]);
-          var streetType = element.tags.highway || "unknown";
-          var color = getStreetColor(streetType);
-          L.polyline(streetCoordinates, { color: color }).addTo(map);
-        }
-      });
-    })
-    .catch(error => console.error('Error:', error));
-  }
-
-  function getStreetColor(streetType) {
-    switch (streetType) {
-        case 'motorway':
-            return '#ff0000'; // red
-        case 'trunk':
-            return '#ff8000'; // orange
-        case 'primary':
-            return '#ffff00'; // yellow
-        case 'secondary':
-            return '#00ff00'; // green
-        case 'tertiary':
-            return '#0080ff'; // blue
-        default:
-            return '#808080'; // gray for unknown or other types
-    }
-  }
+  
 </script>
 <script>
   function searchCoordinates() {
